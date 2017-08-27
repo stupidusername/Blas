@@ -2,6 +2,7 @@ from flask import abort, Flask, request
 import inspect
 import json
 import os
+import re
 app = Flask('Blas')
 
 
@@ -16,7 +17,13 @@ def get_radio_songs():
     id = request.args.get('id')
     if not id:
         abort(400)
-    return id
+    try:
+        category_folder = list_folders(get_folder('music'))[int(id)]
+        audio_files = \
+            list_audio_files(get_folder('music' + '/' + category_folder))
+    except IndexError:
+        audio_files = []
+    return json.dumps(audio_files)
 
 
 @app.route('/api/get-audio-message')
@@ -50,6 +57,13 @@ def get_folder(folder):
 def list_folders(path):
     return [name for name in os.listdir(path)
             if os.path.isdir(os.path.join(path, name))]
+
+
+def list_audio_files(path):
+    regex = '^.+\.(aac|aiff|flac|m4a|mp3|ogg|wav)$'
+    return [name for name in os.listdir(path)
+            if os.path.isfile(os.path.join(path, name)) and
+            re.match(regex, name, re.IGNORECASE)]
 
 
 def build_music_categories(categories):
