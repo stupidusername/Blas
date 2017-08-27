@@ -60,7 +60,7 @@ def list_folders(path):
 
 
 def list_audio_files(path):
-    regex = '^.+\.(aac|aiff|flac|m4a|mp3|ogg|wav)$'
+    regex = '^.+\.(aiff|flac|m4a|mp3|ogg|wav)$'
     return [name for name in os.listdir(path)
             if os.path.isfile(os.path.join(path, name)) and
             re.match(regex, name, re.IGNORECASE)]
