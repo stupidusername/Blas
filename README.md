@@ -29,5 +29,5 @@ Music category titles are defined by the name of their folders. Audio message fi
 Installation on Raspberry Pi
 ----------------------------
 
-These instructions are for installing Eric on a Raspberry Pi.
+These instructions are for installing Blas on a Raspberry Pi.
 The chosen OS is Raspbian Jessie Lite.
