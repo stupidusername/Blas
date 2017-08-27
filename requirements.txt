@@ -3,5 +3,6 @@ Flask==0.12.2
 itsdangerous==0.24
 Jinja2==2.9.6
 MarkupSafe==1.0
-mutagen==1.38
+mutagen==1.21
+mutagenwrapper==0.0.5
 Werkzeug==0.12.2

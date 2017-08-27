@@ -1,6 +1,7 @@
 from flask import abort, Flask, request
 import inspect
 import json
+from mutagenwrapper import read_tags
 import os
 import re
 app = Flask('Blas')
@@ -17,13 +18,7 @@ def get_radio_songs():
     id = request.args.get('id')
     if not id:
         abort(400)
-    try:
-        category_folder = list_folders(get_folder('music'))[int(id)]
-        audio_files = \
-            list_audio_files(get_folder('music' + '/' + category_folder))
-    except IndexError:
-        audio_files = []
-    return json.dumps(audio_files)
+    return str(build_songs(int(id)))
 
 
 @app.route('/api/get-audio-message')
@@ -59,8 +54,8 @@ def list_folders(path):
             if os.path.isdir(os.path.join(path, name))]
 
 
-def list_audio_files(path):
-    regex = '^.+\.(aiff|flac|m4a|mp3|ogg|wav)$'
+def list_audio_files(path, extensions):
+    regex = '^.+\.(' + '|'.join(extensions) + ')$'
     return [name for name in os.listdir(path)
             if os.path.isfile(os.path.join(path, name)) and
             re.match(regex, name, re.IGNORECASE)]
@@ -68,3 +63,14 @@ def list_audio_files(path):
 
 def build_music_categories(categories):
     return [{'id': idx, 'title': title} for idx, title in enumerate(categories)]
+
+
+def build_songs(category_id):
+    try:
+        category_folder = list_folders(get_folder('music'))[int(category_id)]
+        category_path = get_folder('music/' + category_folder)
+        audio_files = list_audio_files(category_path, ['flac', 'mp3', 'm4a'])
+    except IndexError:
+        audio_files = []
+    return [read_tags(category_path + '/' + audio_file)['title']
+            for audio_file in audio_files]
