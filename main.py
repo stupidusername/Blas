@@ -1,16 +1,19 @@
-from flask import abort, Flask, request, send_from_directory, url_for
+from flask import abort, Flask, request, Response, send_from_directory, url_for
 import inspect
 import json
 from mutagenwrapper import read_tags
 import os
 import re
+import urllib
 app = Flask('Blas')
 
 
 @app.route('/api/get-radios')
 def get_radios():
     music_category_folders = list_folders(get_folder('music'))
-    return json.dumps(build_music_categories(music_category_folders))
+    js = json.dumps(build_music_categories(music_category_folders))
+    resp = Response(js, status=200, mimetype='application/json')
+    return resp
 
 
 @app.route('/api/get-radio-songs')
@@ -18,7 +21,9 @@ def get_radio_songs():
     id = request.args.get('id')
     if not id:
         abort(400)
-    return json.dumps(build_songs(int(id)))
+    js = json.dumps(build_songs(int(id)))
+    resp = Response(js, status=200, mimetype='application/json')
+    return resp
 
 
 @app.route('/get-song')
@@ -51,8 +56,8 @@ def get_audio_message():
                 file = audio_file
                 break
     key = int(key)
-    url = url_for('get_audio_message_file', file=file, _external=True) \
-        if file else None
+    url = urllib.unquote_plus(url_for(
+        'get_audio_message_file', file=file, _external=True)) if file else None
     audio_message = {
         'id': key,
         'key': key,
@@ -65,7 +70,9 @@ def get_audio_message():
         'manual': False,
         'audioMessageUrl': url
     }
-    return json.dumps(audio_message)
+    js = json.dumps(audio_message)
+    resp = Response(js, status=200, mimetype='application/json')
+    return resp
 
 
 @app.route('/get-audio-message')
@@ -83,7 +90,7 @@ def get_files_root_folder():
         config_file = open(script_dir + '/config.json')
         config_file.seek(0)
         config = json.load(config_file)
-        files_root_folder = config['files_root_folder'].strip('/')
+        files_root_folder = config['files_root_folder'].rstrip('/')
         return files_root_folder
     except:
         abort(500)
@@ -120,8 +127,9 @@ def build_songs(category_id):
     songs = []
     for idx, audio_file in enumerate(audio_files):
         tags = read_tags(category_path + '/' + audio_file)
-        song_url = url_for(
-            'get_song', file=category_folder + '/' + audio_file, _external=True)
+        file = category_folder + '/' + audio_file
+        song_url = urllib.unquote_plus(
+            url_for('get_song', file=file, _external=True))
         songs.append({
             'id': idx,
             'radio_id': category_id,
