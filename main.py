@@ -1,4 +1,4 @@
-from flask import abort, Flask, request
+from flask import abort, Flask, request, send_from_directory, url_for
 import inspect
 import json
 from mutagenwrapper import read_tags
@@ -18,7 +18,15 @@ def get_radio_songs():
     id = request.args.get('id')
     if not id:
         abort(400)
-    return str(build_songs(int(id)))
+    return json.dumps(build_songs(int(id)))
+
+
+@app.route('/get-song')
+def get_song():
+    file = request.args.get('file')
+    if not file:
+        abort(400)
+    return send_from_directory(get_folder('music'), file)
 
 
 @app.route('/api/get-audio-message')
@@ -72,5 +80,20 @@ def build_songs(category_id):
         audio_files = list_audio_files(category_path, ['flac', 'mp3', 'm4a'])
     except IndexError:
         audio_files = []
-    return [read_tags(category_path + '/' + audio_file)['title']
-            for audio_file in audio_files]
+    songs = []
+    for idx, audio_file in enumerate(audio_files):
+        tags = read_tags(category_path + '/' + audio_file)
+        song_url = url_for(
+            'get_song', file=category_folder + '/' + audio_file, _external=True)
+        songs.append({
+            'id': idx,
+            'radio_id': category_id,
+            'filename': audio_file,
+            'title': tags.find('title'),
+            'album': tags.find('album'),
+            'author': tags.find('artist'),
+            'albumart_filename': None,
+            'songUrl': song_url,
+            'albumartUrl': None
+        })
+    return songs
