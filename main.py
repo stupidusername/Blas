@@ -36,7 +36,44 @@ def get_audio_message():
     suffix = request.args.get('suffix')
     if not key:
         abort(400)
-    return key
+    messages_path = get_folder('messages')
+    audio_files = list_audio_files(
+        messages_path, ['aac', 'aiff', 'flac', 'm4a', 'mp3', 'ogg', 'wav'])
+    filename = '.'.join([value for value in [key, room, suffix] if value])
+    file = None
+    for audio_file in audio_files:
+        if filename == os.path.splitext(audio_file)[0]:
+            file = audio_file
+            break
+    if not file:
+        for audio_file in audio_files:
+            if key == os.path.splitext(audio_file)[0]:
+                file = audio_file
+                break
+    key = int(key)
+    url = url_for('get_audio_message_file', file=file, _external=True) \
+        if file else None
+    audio_message = {
+        'id': key,
+        'key': key,
+        'name': str(key),
+        'name_spanish': str(key),
+        'filename': file,
+        'kind': int(room is not None),
+        'audio_output': 0,  # room audio output
+        'delay': 0,
+        'manual': False,
+        'audioMessageUrl': url
+    }
+    return json.dumps(audio_message)
+
+
+@app.route('/get-audio-message')
+def get_audio_message_file():
+    file = request.args.get('file')
+    if not file:
+        abort(400)
+    return send_from_directory(get_folder('messages'), file)
 
 
 def get_files_root_folder():
@@ -77,7 +114,7 @@ def build_songs(category_id):
     try:
         category_folder = list_folders(get_folder('music'))[int(category_id)]
         category_path = get_folder('music/' + category_folder)
-        audio_files = list_audio_files(category_path, ['flac', 'mp3', 'm4a'])
+        audio_files = list_audio_files(category_path, ['flac', 'm4a', 'mp3'])
     except IndexError:
         audio_files = []
     songs = []
