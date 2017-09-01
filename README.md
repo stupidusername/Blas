@@ -66,8 +66,7 @@ $ sudo nano /etc/supervisor/supervisord.conf
 add these lines at the end of the file
 ```
 [program:blas]                                                                  
-environment = FLASK_APP=main.py  
-command = python -m flask run
+command = gunicorn -w 9 -b 0.0.0.0:5000 main:app
 directory = /home/pi/blas
 autostart = true
 autorestart = true
