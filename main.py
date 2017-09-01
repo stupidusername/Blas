@@ -36,10 +36,12 @@ def get_song():
 
 
 @app.route('/get-albumart')
-def get_abumart():
+def get_albumart():
     file = request.args.get('file')
     if not file:
         abort(400)
+    # remove image extensions
+    file = os.path.splitext(file)[0]
     data, mimetype = get_albumart_data(file)
     if not data or not mimetype:
         abort(404)
@@ -139,10 +141,21 @@ def build_songs(category_id):
         audio_files = []
     songs = []
     for idx, audio_file in enumerate(audio_files):
-        tags = read_tags(category_path + '/' + audio_file)
+        path = category_path + '/' + audio_file
         file = category_folder + '/' + audio_file
         song_url = urllib.unquote_plus(
             url_for('get_song', file=file, _external=True))
+        tags = read_tags(path)
+        albumart_mime = get_albumart_data(file)[1]
+        if albumart_mime:
+            extension = albumart_mime.replace('image/', '')
+            albumart_file = file + '.' + extension
+            albumart_url = urllib.unquote_plus(
+                url_for('get_albumart', file=albumart_file, _external=True))
+        else:
+            extension = None
+            albumart_file = None
+            albumart_url = None
         songs.append({
             'id': idx,
             'radio_id': category_id,
@@ -150,9 +163,9 @@ def build_songs(category_id):
             'title': tags.find('title'),
             'album': tags.find('album'),
             'author': tags.find('artist'),
-            'albumart_filename': None,
+            'albumart_filename': albumart_file,
             'songUrl': song_url,
-            'albumartUrl': None
+            'albumartUrl': albumart_url
         })
     return songs
 
