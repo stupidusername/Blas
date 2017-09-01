@@ -1,4 +1,5 @@
 from flask import abort, Flask, request, Response, send_from_directory, url_for
+import imghdr
 import inspect
 import json
 from mutagenwrapper import read_tags
@@ -32,6 +33,18 @@ def get_song():
     if not file:
         abort(400)
     return send_from_directory(get_folder('music'), file)
+
+
+@app.route('/get-albumart')
+def get_abumart():
+    file = request.args.get('file')
+    if not file:
+        abort(400)
+    data, mimetype = get_albumart_data(file)
+    if not data or not mimetype:
+        abort(404)
+    resp = Response(data, status=200, mimetype=mimetype)
+    return resp
 
 
 @app.route('/api/get-audio-message')
@@ -142,3 +155,35 @@ def build_songs(category_id):
             'albumartUrl': None
         })
     return songs
+
+
+def get_albumart_data(file):
+    path = get_folder('music') + '/' + file
+    data, mimetype = None, None
+    # catch mutagenwrapper exceptions
+    try:
+        tags = read_tags(path, raw=True)
+    except:
+        tags = None
+    # try flac tag
+    if hasattr(tags, 'pictures'):
+        for picture in tags.pictures:
+            # search for front cover
+            if picture.type == 3:
+                data = picture.data
+                mimetype = picture.mime
+    elif tags:
+        for tag, value in tags.iteritems():
+            # try mp3 tags
+            if tag.startswith('APIC:'):
+                # search for front cover
+                if value.type == 3:
+                    data = value.data
+                    mimetype = value.mime
+                    break
+            # try m4a tag
+            elif tag == 'covr':
+                data = value[0] if value else None
+                mimetype = 'image/' + imghdr.what(None, data)
+                break
+    return data, mimetype
