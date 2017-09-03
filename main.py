@@ -147,8 +147,8 @@ def build_songs(category_id):
     for idx, audio_file in enumerate(audio_files):
         path = category_path + '/' + audio_file
         file = category_folder + '/' + audio_file
-        song_url = urllib.unquote_plus(
-            url_for('get_song', file=file, _external=True))
+        # harcoded urls are needed becaus url_for() it's too slow
+        song_url = request.url_root + 'get-song?file=' + file
         try:
             tags = read_tags(path)
         except:
@@ -157,8 +157,8 @@ def build_songs(category_id):
         if albumart_mime:
             extension = albumart_mime.replace('image/', '')
             albumart_file = file + '.' + extension
-            albumart_url = urllib.unquote_plus(
-                url_for('get_albumart', file=albumart_file, _external=True))
+            albumart_url = \
+                request.url_root + 'get-albumart?file=' + albumart_file
         else:
             extension = None
             albumart_file = None
