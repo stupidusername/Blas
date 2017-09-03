@@ -42,7 +42,11 @@ def get_albumart():
         abort(400)
     # remove image extensions
     file = os.path.splitext(file)[0]
-    data, mimetype = get_albumart_data(file)
+    path = get_folder('music') + '/' + file
+    try:
+        data, mimetype = get_albumart_data(read_tags(path))
+    except:
+        data, mimetype = None, None
     if not data or not mimetype:
         abort(404)
     resp = Response(data, status=200, mimetype=mimetype)
@@ -149,7 +153,7 @@ def build_songs(category_id):
             tags = read_tags(path)
         except:
             tags = None
-        albumart_mime = get_albumart_data(file)[1]
+        albumart_mime = get_albumart_data(tags)[1]
         if albumart_mime:
             extension = albumart_mime.replace('image/', '')
             albumart_file = file + '.' + extension
@@ -173,14 +177,9 @@ def build_songs(category_id):
     return songs
 
 
-def get_albumart_data(file):
-    path = get_folder('music') + '/' + file
+def get_albumart_data(tags):
+    tags = tags.raw_tags if tags else None
     data, mimetype = None, None
-    # catch mutagenwrapper exceptions
-    try:
-        tags = read_tags(path, raw=True)
-    except:
-        tags = None
     # try flac tag
     if hasattr(tags, 'pictures'):
         for picture in tags.pictures:
