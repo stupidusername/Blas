@@ -151,8 +151,14 @@ def build_songs(category_id):
         song_url = request.url_root + 'get-song?file=' + file
         try:
             tags = read_tags(path)
+            title = tags.find('title')
+            album = tags.find('album')
+            author = tags.find('artist')
         except:
             tags = None
+            title = None
+            album = None
+            author = None
         albumart_mime = get_albumart_data(tags)[1]
         if albumart_mime:
             extension = albumart_mime.replace('image/', '')
@@ -167,9 +173,9 @@ def build_songs(category_id):
             'id': idx,
             'radio_id': category_id,
             'filename': audio_file,
-            'title': tags.find('title') if tags else None,
-            'album': tags.find('album') if tags else None,
-            'author': tags.find('artist') if tags else None,
+            'title': title,
+            'album': album,
+            'author': author,
             'albumart_filename': albumart_file,
             'songUrl': song_url,
             'albumartUrl': albumart_url
