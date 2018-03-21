@@ -3,6 +3,7 @@ import imghdr
 import inspect
 import json
 from mutagenwrapper import read_tags
+import operator
 import os
 import re
 import urllib
@@ -154,9 +155,10 @@ def list_folders(path):
 
 def list_files(path, extensions):
     regex = re.compile('^.+\.(' + '|'.join(extensions) + ')$', re.IGNORECASE)
-    return [name for name in os.listdir(path)
-            if os.path.isfile(os.path.join(path, name)) and
-            regex.match(name)]
+    files = [name for name in os.listdir(path)
+             if os.path.isfile(os.path.join(path, name)) and
+             regex.match(name)]
+    return files
 
 
 def build_categories(categories):
@@ -222,7 +224,7 @@ def build_channels(category_id):
     for idx, channel_file in enumerate(channel_files):
         match = regex.match(channel_file)
         if match:
-            number = match.group(1)
+            number = int(match.group(1))
             title = match.group(2)
             if match.group(3).lower() in ['jpeg', 'jpg', 'png']:
                 logo = channel_file
@@ -240,7 +242,7 @@ def build_channels(category_id):
                 'logo_filename': logo,
                 'logoUrl': logo_url
             })
-    return channels
+    return sorted(channels, key=operator.itemgetter('number'))
 
 
 def get_albumart_data(tags):
