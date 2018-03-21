@@ -126,7 +126,7 @@ def get_channel_logo():
     file = request.args.get('file')
     if not file:
         abort(400)
-    return send_from_directory('files/channels', file)
+    return send_from_directory(get_folder('channels'), file)
 
 
 def get_files_root_folder():
