@@ -12,7 +12,7 @@ app = Flask('Blas')
 @app.route('/api/get-radios')
 def get_radios():
     music_category_folders = list_folders(get_folder('music'))
-    js = json.dumps(build_music_categories(music_category_folders))
+    js = json.dumps(build_categories(music_category_folders))
     resp = Response(js, status=200, mimetype='application/json')
     return resp
 
@@ -61,7 +61,7 @@ def get_audio_message():
     if not key:
         abort(400)
     messages_path = get_folder('messages')
-    audio_files = list_audio_files(
+    audio_files = list_files(
         messages_path, ['aac', 'aiff', 'flac', 'm4a', 'mp3', 'ogg', 'wav'])
     filename = '.'.join([value for value in [key, room, suffix] if value])
     file = None
@@ -102,6 +102,32 @@ def get_audio_message_file():
     return send_from_directory(get_folder('messages'), file)
 
 
+@app.route('/api/get-channel-categories')
+def get_channel_categories():
+    channel_category_folders = list_folders(get_folder('channels'))
+    js = json.dumps(build_categories(channel_category_folders))
+    resp = Response(js, status=200, mimetype='application/json')
+    return resp
+
+
+@app.route('/api/get-channels')
+def get_channels():
+    id = request.args.get('categoryId')
+    if not id:
+        abort(400)
+    js = json.dumps(build_channels(int(id)))
+    resp = Response(js, status=200, mimetype='application/json')
+    return resp
+
+
+@app.route('/get-channel-logo')
+def get_channel_logo():
+    file = request.args.get('file')
+    if not file:
+        abort(400)
+    return send_from_directory('files/channels', file)
+
+
 def get_files_root_folder():
     try:
         script_dir = os.path.dirname(
@@ -121,18 +147,19 @@ def get_folder(folder):
 
 
 def list_folders(path):
-    return [name for name in os.listdir(path)
-            if os.path.isdir(os.path.join(path, name))]
+    folders = [name for name in os.listdir(path)
+               if os.path.isdir(os.path.join(path, name))]
+    return sorted(folders)
 
 
-def list_audio_files(path, extensions):
-    regex = '^.+\.(' + '|'.join(extensions) + ')$'
+def list_files(path, extensions):
+    regex = re.compile('^.+\.(' + '|'.join(extensions) + ')$', re.IGNORECASE)
     return [name for name in os.listdir(path)
             if os.path.isfile(os.path.join(path, name)) and
-            re.match(regex, name, re.IGNORECASE)]
+            regex.match(name)]
 
 
-def build_music_categories(categories):
+def build_categories(categories):
     return [{'id': idx, 'title': title} for idx, title in enumerate(categories)]
 
 
@@ -140,7 +167,7 @@ def build_songs(category_id):
     try:
         category_folder = list_folders(get_folder('music'))[int(category_id)]
         category_path = get_folder('music/' + category_folder)
-        audio_files = list_audio_files(category_path, ['flac', 'm4a', 'mp3'])
+        audio_files = list_files(category_path, ['flac', 'm4a', 'mp3'])
     except IndexError:
         audio_files = []
     songs = []
@@ -181,6 +208,39 @@ def build_songs(category_id):
             'albumartUrl': albumart_url
         })
     return songs
+
+
+def build_channels(category_id):
+    try:
+        category_folder = list_folders(get_folder('channels'))[int(category_id)]
+        category_path = get_folder('channels/' + category_folder)
+        channel_files = list_files(category_path, ['txt', 'jpeg', 'jpg', 'png'])
+    except IndexError:
+        channel_files = []
+    channels = []
+    regex = re.compile('^(\d+)\s-\s(.+)\.(.+)$')
+    for idx, channel_file in enumerate(channel_files):
+        match = regex.match(channel_file)
+        if match:
+            number = match.group(1)
+            title = match.group(2)
+            if match.group(3).lower() in ['jpeg', 'jpg', 'png']:
+                logo = channel_file
+                logo_file = category_folder + '/' + channel_file
+                logo_url = \
+                    request.url_root + 'get-channel-logo?file=' + logo_file
+            else:
+                logo = None
+                logo_url = None
+            channels.append({
+                'id': idx,
+                'channel_category_id': category_id,
+                'number': number,
+                'title': title,
+                'logo_filename': logo,
+                'logoUrl': logo_url
+            })
+    return channels
 
 
 def get_albumart_data(tags):

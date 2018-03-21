@@ -11,23 +11,34 @@ Requirements
 Configuration
 -------------
 
-This app needs a `config.json` file. Use `config.json.example` for reference. Directory structure for the audio files folder must be as follows:
+This app needs a `config.json` file. Use `config.json.example` for reference. Directory structure for media files folder must be as follows:
 ```
 | - files_root_folder/
+  | - channels/
+  | - channel_category_1/
+  | | | - 1 - channel_1.png
+  | | | - ...
+  | | - channel_category_2/
+  | | - ...
+  | | - channel_category_n/
   | - music/
   | | - music_category_1/
   | | | - song.mp3
+  | | | - ...
   | | - music_category_2/
   | | - ...
   | | - music_category_n/
   | - messages/
     | - 1.mp3
+    | - ...
 ```
-Music category titles are defined by the name of their folders. Audio message files must be named after their corresponding audio message key.
+Channel and music category titles are defined by the name of their folders. Audio message files must be named after their corresponding audio message key.
+Chanel files must be named like this ```<number> - <title>.<extension>```. For example "1 - Channel 1.png". No logo image will be provided if extension is "txt".
 
-Supported audio extensions
---------------------------
+Supported file extensions
+-------------------------
 
+* For channel files: txt, jpeg, jpg, png
 * For music files: flac, m4a, mp3
 * For message files: aac, aiff, flac, m4a, mp3, ogg, wav
 
