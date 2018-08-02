@@ -11,7 +11,12 @@ Requirements
 Configuration
 -------------
 
-This app needs a `config.json` file. Use `config.json.example` for reference. Directory structure for media files folder must be as follows:
+This app needs a `config.json` file. Use `config.json.example` for reference.
+
+Media files
+-----------
+
+Directory structure for media files folder must be as follows:
 ```
 | - files_root_folder/
   | - channels/
