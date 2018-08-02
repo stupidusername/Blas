@@ -46,7 +46,7 @@ Installation on Raspberry Pi
 ----------------------------
 
 These instructions are for installing Blas on a Raspberry Pi.
-The chosen OS is Raspbian Jessie Lite. It's assumed that git and pip are installed on the system.
+The chosen OS is Raspbian Stretch Lite. It's assumed that git and pip are installed on the system.
 
 * Clone app repo.
 ```
