@@ -61,7 +61,7 @@ $ git clone https://github.com/stupidusername/Blas.git ~/blas
 ```
 $ sudo pip install -r ~/blas/requirements.txt
 ```
-* (Optional) Install usbmount.
+* (Optional) Install usbmount to mount usb drives automatically.
 ```
 $ sudo apt-get install usbmount
 ```
