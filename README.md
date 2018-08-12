@@ -65,7 +65,7 @@ $ sudo pip install -r ~/blas/requirements.txt
 ```
 $ sudo apt-get install usbmount
 ```
-Make sure it works in Stretch by changing MountFlags=slave to MountFlags=shared here:
+Make sure it works in Stretch by changing `MountFlags=slave` to `MountFlags=shared` here:
 ```
 $ sudo nano /lib/systemd/system/systemd-udevd.service
 ```
