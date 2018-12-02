@@ -79,7 +79,7 @@
     ```
 
   * Configure app by editing ~/blas/config.json.
-  If the files are beign read from an usb device and usbmount is running then the property "files_root_folder" should take the value "/media/usb".
+  If the files are beign read from an usb device and usbmount is running then the property `files_root_folder` should take the value `"/media/usb"`.
 
     ```
     $ cp ~/blas/config.json.example ~/blas/config.json
