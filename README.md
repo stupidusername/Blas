@@ -20,7 +20,7 @@
   ```
   | - files_root_folder/
     | - channels/
-    | - channel_category_1/
+    | | - channel_category_1/
     | | | - 1 - channel_1.png
     | | | - ...
     | | - channel_category_2/
@@ -39,7 +39,7 @@
   ```
 
   Channel and music category titles are defined by the name of their folders. Audio message files must be named after their corresponding audio message key.
-  Chanel files must be named like this ```<number> - <title>.<extension>```. For example "1 - Channel 1.png". No logo image will be provided if extension is "txt".
+  Channel files must be named like this ```<number> - <title>.<extension>```. For example "1 - Channel 1.png". No logo image will be provided if extension is "txt".
 
 
 ## Supported file extensions
