@@ -179,7 +179,8 @@ def build_songs(category_id):
         path = category_path + '/' + audio_file
         file = category_folder + '/' + audio_file
         # harcoded urls are needed becaus url_for() it's too slow
-        song_url = request.url_root + 'get-song?file=' + file
+        song_url = request.url_root + 'get-song?file=' + \
+            urllib.quote(file.encode('utf8'))
         try:
             tags = read_tags(path)
             title = tags.find('title')
@@ -194,8 +195,8 @@ def build_songs(category_id):
         if albumart_mime:
             extension = albumart_mime.replace('image/', '')
             albumart_file = file + '.' + extension
-            albumart_url = \
-                request.url_root + 'get-albumart?file=' + albumart_file
+            albumart_url = request.url_root + 'get-albumart?file=' + \
+                urllib.quote(albumart_file.encode('utf8'))
         else:
             extension = None
             albumart_file = None
@@ -231,8 +232,8 @@ def build_channels(category_id):
             if match.group(3).lower() in ['jpeg', 'jpg', 'png']:
                 logo = channel_file
                 logo_file = category_folder + '/' + channel_file
-                logo_url = \
-                    request.url_root + 'get-channel-logo?file=' + logo_file
+                logo_url = request.url_root + 'get-channel-logo?file=' + \
+                    urllib.quote(logo_file.encode('utf8'))
             else:
                 logo = None
                 logo_url = None
