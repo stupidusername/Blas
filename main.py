@@ -222,7 +222,7 @@ def build_channels(category_id):
     except IndexError:
         channel_files = []
     channels = []
-    regex = re.compile('^(\d+)\s-\s(.+)\.(.+)$')
+    regex = re.compile('^(\d+)\s*-\s*(.+)\.(.+)$')
     for idx, channel_file in enumerate(channel_files):
         match = regex.match(channel_file)
         if match:
