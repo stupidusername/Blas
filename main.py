@@ -60,13 +60,12 @@ def get_albumart():
 def get_audio_message():
     key = request.args.get('key')
     room = request.args.get('room')
-    suffix = request.args.get('suffix')
     if not key:
         abort(400)
     messages_path = get_folder('messages')
     audio_files = list_files(
         messages_path, ['aac', 'aiff', 'flac', 'm4a', 'mp3', 'ogg', 'wav'])
-    filename = '.'.join([value for value in [key, room, suffix] if value])
+    filename = '.'.join([value for value in [key, room] if value])
     file = None
     for audio_file in audio_files:
         if filename == os.path.splitext(audio_file)[0]:
@@ -78,8 +77,9 @@ def get_audio_message():
                 file = audio_file
                 break
     key = int(key)
-    url = urllib.unquote_plus(url_for(
-        'get_audio_message_file', file=file, _external=True)) if file else None
+    url = None
+    if file:
+        url = url_for('get_audio_message_file', file=file, _external=True)
     audio_message = {
         'id': key,
         'key': key,
