@@ -272,4 +272,7 @@ def get_albumart_data(tags):
                 data = value[0] if value else None
                 mimetype = 'image/' + imghdr.what(None, data)
                 break
+    # correct "image/jpg" mimetype
+    if mimetype == 'image/jpg':
+        mimetype = 'image/jpeg'
     return data, mimetype
